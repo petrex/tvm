@@ -77,6 +77,8 @@ def conv2d_forward(x,
     data_type: int
         0: miopenHalf (fp16)
         1: miopenFloat (fp32)
+        2: miopenInt32 (int32)
+        3: miopenInt8 (int8)
 
     Returns
     -------
@@ -84,6 +86,7 @@ def conv2d_forward(x,
         The result tensor
     """
     assert (conv_mode == 0 or conv_mode == 1), "0: miopenConvolution / 1: miopenTranspose"
+    assert (0 <= data_type <= 3), "0: fp16 / 1: fp32 / 2: int32 / 3: int8"
     oshape = np.zeros((len(x.shape)), dtype=np.int32)
     xshape = x.shape
     wshape = w.shape
