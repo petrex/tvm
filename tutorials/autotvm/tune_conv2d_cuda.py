@@ -182,7 +182,7 @@ logging.getLogger('autotvm').addHandler(logging.StreamHandler(sys.stdout))
 N, H, W, CO, CI, KH, KW, strides, padding = 1, 7, 7, 512, 512, 3, 3, (1, 1), (1, 1)
 task = autotvm.task.create(conv2d_no_batching,
                            args=(N, H, W, CO, CI, KH, KW, strides, padding),
-                           target='cuda')
+                           target='rocm')
 print(task.config_space)
 
 # Use local gpu, measure 10 times for every config to reduce variance
@@ -212,7 +212,7 @@ print(best_config)
 
 # apply history best from log file
 with autotvm.apply_history_best('conv2d.log'):
-    with tvm.target.create("cuda"):
+    with tvm.target.create("rocm"):
         s, arg_bufs = conv2d_no_batching(N, H, W, CO, CI, KH, KW, strides, padding)
         func = tvm.build(s, arg_bufs)
 
@@ -221,7 +221,7 @@ a_np = np.random.uniform(size=(N, CI, H, W)).astype(np.float32)
 w_np = np.random.uniform(size=(CO, CI, KH, KW)).astype(np.float32)
 c_np = conv2d_nchw_python(a_np, w_np, strides, padding)
 
-ctx = tvm.gpu()
+ctx = tvm.rocm()
 a_tvm = tvm.nd.array(a_np, ctx=ctx)
 w_tvm = tvm.nd.array(w_np, ctx=ctx)
 c_tvm = tvm.nd.empty(c_np.shape, ctx=ctx)

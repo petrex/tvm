@@ -111,7 +111,7 @@ def get_network(name, batch_size):
 # Before tuning, we apply some configurations.
 
 #### DEVICE CONFIG ####
-target = tvm.target.cuda()
+target = tvm.target.rocm()
 
 #### TUNING OPTION ####
 network = 'resnet-18'

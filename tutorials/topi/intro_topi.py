@@ -84,7 +84,7 @@ d = a * b  # same as topi.broadcast_mul
 e = topi.elemwise_sum([c, d])
 f = e / 2.0
 g = topi.sum(f)
-with tvm.target.cuda():
+with tvm.target.rocm():
     sg = topi.generic.schedule_reduce(g)
     print(tvm.lower(sg, [a, b], simple_mode=True))
 
@@ -96,8 +96,8 @@ print(sg.stages)
 ######################################################################
 # We can test the correctness by comparing with :code:`numpy` result as follows
 #
-func = tvm.build(sg, [a, b, g], 'cuda')
-ctx = tvm.gpu(0)
+func = tvm.build(sg, [a, b, g], 'rocm')
+ctx = tvm.rocm()
 a_np = np.random.uniform(size=(x, y, y)).astype(a.dtype)
 b_np = np.random.uniform(size=(y, y)).astype(b.dtype)
 g_np = np.sum(np.add(a_np + b_np, a_np * b_np) / 2.0)
@@ -112,7 +112,7 @@ tvm.testing.assert_allclose(g_nd.asnumpy(), g_np, rtol=1e-5)
 #
 tarray = tvm.placeholder((512, 512), name="tarray")
 softmax_topi = topi.nn.softmax(tarray)
-with tvm.target.create("cuda"):
+with tvm.target.create("rocm"):
     sst = topi.generic.schedule_softmax(softmax_topi)
     print(tvm.lower(sst, [tarray], simple_mode=True))
 
@@ -132,7 +132,7 @@ with tvm.target.create("cuda"):
 data = tvm.placeholder((1, 3, 224, 224))
 kernel = tvm.placeholder((10, 3, 5, 5))
 
-with tvm.target.create("cuda"):
+with tvm.target.create("rocm"):
     conv = topi.nn.conv2d(data, kernel, strides=1, padding=2, dilation=1)
     out = topi.nn.relu(conv)
     sconv = topi.generic.nn.schedule_conv2d_nchw(out)

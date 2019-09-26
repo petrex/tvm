@@ -51,7 +51,7 @@ num_thread = 64
 bx, tx = s[B].split(B.op.axis[0], factor=num_thread)
 s[B].bind(bx, tvm.thread_axis("blockIdx.x"))
 s[B].bind(tx, tvm.thread_axis("threadIdx.x"))
-f = tvm.build(s, [A, B], "cuda", name="myexp")
+f = tvm.build(s, [A, B], "rocm", name="myexp")
 print(f.imported_modules[0].get_source())
 
 ######################################################################
@@ -75,8 +75,8 @@ num_thread = 64
 bx, tx = s[B].split(B.op.axis[0], factor=num_thread)
 s[B].bind(bx, tvm.thread_axis("blockIdx.x"))
 s[B].bind(tx, tvm.thread_axis("threadIdx.x"))
-fcuda = tvm.build(s, [A, B], "cuda", name="myexp")
-print(fcuda.imported_modules[0].get_source())
+frocm= tvm.build(s, [A, B], "rocm", name="myexp")
+print(frocm.imported_modules[0].get_source())
 ######################################################################
 # We can find that the code works for both CUDA and opencl.
 # The same tvm.exp can also be used for float64 data types.
@@ -94,7 +94,7 @@ print(fopencl.imported_modules[0].get_source())
 # TVM also allows user to customize the rules during runtime.
 # The following example customizes CUDA lowering rule for :code:`exp`.
 #
-def my_cuda_math_rule(op):
+def my_rocm_math_rule(op):
     """Customized CUDA intrinsic lowering rule"""
     assert isinstance(op, tvm.expr.Call)
     if op.dtype == "float32":
@@ -106,15 +106,15 @@ def my_cuda_math_rule(op):
     else:
         # cannot do translation, return self.
         return op
-tvm.register_intrin_rule("cuda", "exp", my_cuda_math_rule, override=True)
+tvm.register_intrin_rule("rocm", "exp", my_rocm_math_rule, override=True)
 ######################################################################
 # Register the rule to TVM with override option to override existing rule.
 # Notice the difference between the printed code from previous one:
 # our new rule uses math function :code:`expf` instead of
 # fast math version :code:`__expf`.
 #
-fcuda = tvm.build(s, [A, B], "cuda", name="myexp")
-print(fcuda.imported_modules[0].get_source())
+frocm = tvm.build(s, [A, B], "rocm", name="myexp")
+print(frocm.imported_modules[0].get_source())
 
 ######################################################################
 # Add Your Own Intrinsic
@@ -127,7 +127,7 @@ def mylog(x):
     """customized log intrinsic function"""
     return tvm.call_pure_intrin(x.dtype, "mylog", x)
 
-def my_cuda_mylog_rule(op):
+def my_rocm_mylog_rule(op):
     """CUDA lowering rule for log"""
     if op.dtype == "float32":
         return tvm.call_pure_extern("float32", "logf", op.args[0])
@@ -135,7 +135,7 @@ def my_cuda_mylog_rule(op):
         return tvm.call_pure_extern("float64", "log", op.args[0])
     else:
         return op
-tvm.register_intrin_rule("cuda", "mylog", my_cuda_mylog_rule, override=True)
+tvm.register_intrin_rule("rocm", "mylog", my_rocm_mylog_rule, override=True)
 
 n = tvm.var("n")
 A = tvm.placeholder((n,), name='A')
@@ -145,8 +145,8 @@ num_thread = 64
 bx, tx = s[B].split(B.op.axis[0], factor=num_thread)
 s[B].bind(bx, tvm.thread_axis("blockIdx.x"))
 s[B].bind(tx, tvm.thread_axis("threadIdx.x"))
-fcuda = tvm.build(s, [A, B], "cuda", name="mylog")
-print(fcuda.imported_modules[0].get_source())
+frocm = tvm.build(s, [A, B], "rocm", name="mylog")
+print(frocm.imported_modules[0].get_source())
 
 ######################################################################
 # Summary

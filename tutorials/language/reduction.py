@@ -76,7 +76,7 @@ print(tvm.lower(s, [A, B], simple_mode=True))
 # axis by different factors. The result is a nested reduction.
 #
 ko, ki = s[B].split(B.op.reduce_axis[0], factor=16)
-xo, xi = s[B].split(B.op.axis[0], factor=32)
+xo, xi = s[B].split(B.op.axis[0], factor=64)
 print(tvm.lower(s, [A, B], simple_mode=True))
 
 ######################################################################
@@ -121,24 +121,24 @@ print(s[B].op.body)
 # The final generated kernel will divide the rows by blockIdx.x and threadIdx.y
 # columns by threadIdx.x and finally do a cross thread reduction over threadIdx.x
 #
-xo, xi = s[B].split(s[B].op.axis[0], factor=32)
+xo, xi = s[B].split(s[B].op.axis[0], factor=64)
 s[B].bind(xo, tvm.thread_axis("blockIdx.x"))
 s[B].bind(xi, tvm.thread_axis("threadIdx.y"))
 tx = tvm.thread_axis("threadIdx.x")
 s[B].bind(s[B].op.reduce_axis[0], tx)
 s[BF].compute_at(s[B], s[B].op.reduce_axis[0])
 s[B].set_store_predicate(tx.var.equal(0))
-fcuda = tvm.build(s, [A, B], "cuda")
-print(fcuda.imported_modules[0].get_source())
+frocm = tvm.build(s, [A, B], "rocm")
+print(frocm.imported_modules[0].get_source())
 
 ######################################################################
 # Verify the correctness of result kernel by comparing it to numpy.
 #
 nn = 128
-ctx  = tvm.gpu(0)
+ctx  = tvm.rocm()
 a = tvm.nd.array(np.random.uniform(size=(nn, nn)).astype(A.dtype), ctx)
 b = tvm.nd.array(np.zeros(nn, dtype=B.dtype), ctx)
-fcuda(a, b)
+frocm(a, b)
 tvm.testing.assert_allclose(
     b.asnumpy(),  np.sum(a.asnumpy(), axis=1), rtol=1e-4)
 

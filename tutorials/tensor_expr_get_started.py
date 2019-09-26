@@ -34,7 +34,7 @@ import numpy as np
 
 tgt_host="llvm"
 # Change it to respective GPU if gpu is enabled Ex: cuda, opencl, rocm
-tgt="cuda"
+tgt="rocm"
 
 ######################################################################
 # Vector Add Example
