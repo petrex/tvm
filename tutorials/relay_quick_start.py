@@ -66,7 +66,7 @@ data_shape = (batch_size,) + image_shape
 out_shape = (batch_size, num_class)
 
 mod, params = relay.testing.resnet.get_workload(
-    num_layers=18, batch_size=batch_size, image_shape=image_shape)
+    num_layers=50, batch_size=batch_size, image_shape=image_shape)
 
 # set show_meta_data=True if you want to show meta data
 print(mod.astext(show_meta_data=False))
@@ -93,6 +93,18 @@ print(mod.astext(show_meta_data=False))
 # To generate the module library, TVM will first transfer the high level IR
 # into the lower intrinsic IR of the specified target backend, which is CUDA
 # in this example. Then the machine code will be generated as the module library.
+#
+# Note when using AMD GPU backend (through LLVM), it is recommended to set the
+# model and options explicilty.
+# A general guildline is the model string matches the GPU architecture exactly.
+# Also we prefer code-object-v2 in AMD LLVM backend at this moment.
+#
+#       gfx803  --> Fiji
+#       gfx900  --> Vega10 (MI25)
+#       gfx906  --> Vega20 (MI50/MI60/Radeon Vii)
+#  
+#  One possible configuration for Vega10 GPU would be: 
+#       target = tvm.target.rocm(model='gfx900', options='-mattr=-code-object-v3')
 
 opt_level = 3
 target = tvm.target.cuda()
