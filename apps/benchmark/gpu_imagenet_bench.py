@@ -72,15 +72,17 @@ if __name__ == "__main__":
     dtype = 'float32'
 
     if args.network is None:
-        networks = ['resnet-50', 'mobilenet', 'vgg-19', 'inception_v3']
+        networks = ['resnet-18', 'mobilenet', 'vgg-19', 'squeezenet_v1.1']
     else:
         networks = [args.network]
 
-    target = tvm.target.create('%s -model=%s' % (args.target, args.model))
+    #target = tvm.target.create('%s -model=%s' % (args.target, args.model))
 
     print("--------------------------------------------------")
     print("%-20s %-20s" % ("Network Name", "Mean Inference Time (std dev)"))
     print("--------------------------------------------------")
+    target = "rocm -libs=miopen"
+    #target = "rocm"
     for network in networks:
         if args.thread == 1:
             benchmark(network, target)

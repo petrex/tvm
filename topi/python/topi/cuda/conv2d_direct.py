@@ -36,7 +36,7 @@ def schedule_direct_cuda(cfg, s, conv):
 
     target = tvm.target.current_target()
     if target.target_name in ['nvptx', 'rocm']:
-        cfg.define_knob("unroll_explicit", [1])
+        cfg.define_knob("unroll_explicit", [0])
     else:
         cfg.define_knob("unroll_explicit", [0, 1])
 
