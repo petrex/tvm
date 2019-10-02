@@ -14,26 +14,24 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+# pylint: disable=invalid-name, no-member
+"""Generic search operators"""
+from __future__ import absolute_import as _abs
 import tvm
+from .vision import _default_schedule
 
+@tvm.target.generic_func
+def schedule_argwhere(outs):
+    """Schedule for argwhere operator.
 
-def test_rewrite_Select():
-    ib = tvm.ir_builder.create()
-    A = ib.allocate("float32", 100, name="A", scope="global")
-    i = tvm.var("i")
-    y = tvm.expr.Select(i > 1, A[i-1], 1.0)
-    yy = tvm.ir_pass.RewriteUnsafeSelect(tvm.make.Evaluate(y)).value
+    Parameters
+    ----------
+    outs: Array of Tensor
+      The computation graph description of argwhere.
 
-    z = tvm.expr.Select(
-        tvm.expr.Select(i > 1, A[i-1], 1.0) > 0.0, A[i], 0.1)
-    zz = tvm.ir_pass.RewriteUnsafeSelect(tvm.make.Evaluate(z)).value
-
-    a = tvm.expr.Select(tvm.floordiv(i, 4) > 10, y, z)
-    aa = tvm.ir_pass.RewriteUnsafeSelect(tvm.make.Evaluate(a)).value
-    assert yy.name == "tvm_if_then_else"
-    assert zz.name == "tvm_if_then_else"
-    assert isinstance(aa, tvm.expr.Select)
-
-
-if __name__ == "__main__":
-    test_rewrite_Select()
+    Returns
+    -------
+    s: Schedule
+      The computation schedule for the op.
+    """
+    return _default_schedule(outs, False)
