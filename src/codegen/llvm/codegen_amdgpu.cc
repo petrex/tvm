@@ -212,7 +212,25 @@ runtime::Module BuildAMDGPU(Array<LoweredFunc> funcs, std::string target) {
     cg->AddLinkModule(std::move(mlib));
   }
 
+
   std::unique_ptr<llvm::Module> module = cg->Finish();
+  // dump llvm IR
+  std::string tempdir_name = "/tmp/";
+  std::string id = module->getModuleIdentifier();
+  std::string ir_filename = id + ".ll";
+  std::string ir_path = tempdir_name + ir_filename;
+
+  std::string isabin_filename = id + ".o";
+  std::string isabin_path =  tempdir_name + isabin_filename;
+  std::string hsaco_filename =  id + ".hsaco";
+  std::string hsaco_path = tempdir_name + hsaco_filename;
+
+  std::error_code ec;
+  std::unique_ptr<llvm::raw_fd_ostream> ir_fs(
+       new llvm::raw_fd_ostream(ir_path, ec, llvm::sys::fs::F_None));
+  module->print(*ir_fs, nullptr);
+  ir_fs->flush();
+  
   llvm::SmallString<8> dataObj, data_ll, dataAsm;
   llvm::raw_svector_ostream destObj(dataObj), dest_ll(data_ll), destAsm(dataAsm);
   destObj.SetUnbuffered();
