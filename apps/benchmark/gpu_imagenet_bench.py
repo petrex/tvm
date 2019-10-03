@@ -72,7 +72,7 @@ if __name__ == "__main__":
     dtype = 'float32'
 
     if args.network is None:
-        networks = ['resnet-18', 'mobilenet', 'vgg-19', 'squeezenet_v1.1']
+        networks = ['resnet-18']
     else:
         networks = [args.network]
 
@@ -81,8 +81,8 @@ if __name__ == "__main__":
     print("--------------------------------------------------")
     print("%-20s %-20s" % ("Network Name", "Mean Inference Time (std dev)"))
     print("--------------------------------------------------")
-    target = "rocm -libs=miopen"
-    #target = "rocm"
+    #target = "rocm -libs=miopen"
+    target = "rocm"
     for network in networks:
         if args.thread == 1:
             benchmark(network, target)

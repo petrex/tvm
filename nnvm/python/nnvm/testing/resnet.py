@@ -79,12 +79,14 @@ def residual_unit(data, num_filter, stride, dim_match, name, bottle_neck=True):
         conv2 = sym.conv2d(
             data=act2, channels=num_filter, kernel_size=(3, 3),
             strides=(1, 1), padding=(1, 1), use_bias=False, name=name + '_conv2')
-        if dim_match:
-            shortcut = data
+        if stride[0] ==1 or dim_match:
+            shortcut = act1
         else:
             shortcut = sym.conv2d(
                 data=act1, channels=num_filter, kernel_size=(1, 1),
                 strides=stride, use_bias=False, name=name+'_sc')
+        #return conv2
+        #return act1
         return sym.elemwise_add(conv2, shortcut)
 
 def resnet(units, num_stages, filter_list, num_classes, image_shape,
@@ -104,7 +106,7 @@ def resnet(units, num_stages, filter_list, num_classes, image_shape,
         Dataset type, only cifar10 and imagenet supports
     """
     num_unit = len(units)
-    assert num_unit == num_stages
+    #assert num_unit == num_stages
     data = sym.Variable(name='data')
     data = sym.batch_norm(data=data, epsilon=2e-5, scale=False, name='bn_data')
     (_, height, _) = image_shape
@@ -162,7 +164,7 @@ def get_symbol(num_classes, num_layers=50, image_shape=(3, 224, 224), **kwargs):
         else:
             filter_list = [64, 64, 128, 256, 512]
             bottle_neck = False
-        num_stages = 4
+        num_stages = 2
         if num_layers == 18:
             units = [2, 2, 2, 2]
         elif num_layers == 34:
