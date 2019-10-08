@@ -164,7 +164,7 @@ def get_symbol(num_classes, num_layers=50, image_shape=(3, 224, 224), **kwargs):
         else:
             filter_list = [64, 64, 128, 256, 512]
             bottle_neck = False
-        num_stages = 2
+        num_stages = 4
         if num_layers == 18:
             units = [2, 2, 2, 2]
         elif num_layers == 34:

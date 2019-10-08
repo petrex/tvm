@@ -59,7 +59,7 @@ if __name__ == "__main__":
                          'mobilenet', 'mobilenet_v2', 'squeezenet_v1.0', 'squeezenet_v1.1'],
                         help='The name of neural network')
     parser.add_argument("--model", type=str,
-                        choices=['1080ti', 'titanx', 'tx2', 'gfx900'], default='1080ti',
+                        choices=['1080ti', 'titanx', 'tx2', 'gfx900'], default='gfx900',
                         help="The model of the test device. If your device is not listed in "
                              "the choices list, pick the most similar one as argument.")
     parser.add_argument("--repeat", type=int, default=600)
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     dtype = 'float32'
 
     if args.network is None:
-        networks = ['resnet-18']
+        networks = ['resnet-50', 'mobilenet', 'vgg-19', 'squeezenet_v1.1']
     else:
         networks = [args.network]
 
