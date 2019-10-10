@@ -32,7 +32,7 @@
 #include "../codegen_source_base.h"
 #include "../../pass/ir_util.h"
 #include "../../runtime/rocm/rocm_module.h"
-
+#include <fstream>
 namespace tvm {
 namespace codegen {
 
@@ -283,6 +283,13 @@ runtime::Module BuildAMDGPU(Array<LoweredFunc> funcs, std::string target) {
 #endif
   passAsm.run(*mAsm);
   std::string assembly(dataAsm.begin(), dataAsm.end());
+  //////////////
+  std::ofstream out("asm_dump_resnet50.txt", std::ofstream::out);
+  out << assembly;
+  out.close();
+  //
+  //
+  /////////////
   const auto* f = tvm::runtime::Registry::Get("tvm_callback_rocm_link");
   CHECK(f != nullptr) << "Require tvm_callback_rocm_link to exist, do import tvm.contrib.rocm";
 

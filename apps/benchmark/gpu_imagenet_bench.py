@@ -72,7 +72,8 @@ if __name__ == "__main__":
     dtype = 'float32'
 
     if args.network is None:
-        networks = ['resnet-50', 'mobilenet', 'vgg-19', 'squeezenet_v1.1']
+        networks = ['resnet-50']
+        #networks = ['resnet-50', 'mobilenet', 'vgg-19', 'squeezenet_v1.1']
     else:
         networks = [args.network]
 
