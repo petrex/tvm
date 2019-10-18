@@ -328,10 +328,9 @@ class RelayBuildModule : public runtime::ModuleNode {
     // Create a sequential pass and perform optimizations.
     transform::Pass seq = transform::Sequential(pass_seqs);
     if (targets.size() == 1) {
-      for (const auto& kv : targets) {
-        With<Target> tctx(kv.second);
-        relay_module = seq(relay_module);
-      }
+      const auto& it = targets.begin();
+      With<Target> tctx((*it).second);
+      relay_module = seq(relay_module);
     } else {
       relay_module = seq(relay_module);
     }
@@ -461,7 +460,9 @@ class RelayBuildModule : public runtime::ModuleNode {
     ret_.params = graph_codegen_->GetParams();
 
     auto lowered_funcs = graph_codegen_->GetLoweredFunc();
-    if (lowered_funcs.size() != 0) {
+    if (lowered_funcs.size() == 0) {
+      LOG(WARNING) << "no lowered funcs exist in the compiled module";
+    } else {
       ret_.mod = tvm::build(
         lowered_funcs,
         target_host_,
