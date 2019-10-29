@@ -34,7 +34,7 @@ from util import get_network
 def benchmark(network, target):
     net, params, input_shape, output_shape = get_network(network, batch_size=1)
 
-    with nnvm.compiler.build_config(opt_level=3):
+    with nnvm.compiler.build_config(opt_level=4):
         graph, lib, params = nnvm.compiler.build(
             net, target=target, shape={'data': input_shape}, params=params, dtype=dtype)
 
@@ -72,8 +72,8 @@ if __name__ == "__main__":
     dtype = 'float32'
 
     if args.network is None:
-        networks = ['resnet-50']
-        #networks = ['resnet-50', 'mobilenet', 'vgg-19', 'squeezenet_v1.1']
+        #networks = ['resnet-50']
+        networks = ['resnet-50', 'mobilenet', 'vgg-19', 'squeezenet_v1.1']
     else:
         networks = [args.network]
 
